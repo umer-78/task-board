@@ -59,9 +59,12 @@ Two details worth pointing at:
 
 ## Develop
 
+Requires **Node.js 22 LTS**.
+
 ```bash
 git clone https://github.com/umer-78/task-board.git
 cd task-board
+nvm use
 npm ci
 npm run dev        # http://localhost:5173
 npm test           # 21 tests (vitest + Testing Library)
