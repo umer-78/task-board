@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, LayoutGroup, MotionConfig, motion } from 'motion/react';
 import { Column } from './components/Column';
 import { TaskCard } from './components/TaskCard';
 import {
@@ -25,9 +26,17 @@ export default function App() {
   const [dragging, setDragging] = useState<string | null>(null);
   const [saveFailed, setSaveFailed] = useState(false);
   const [draft, setDraft] = useState('');
+  const [focusId, setFocusId] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  // Ids that were on screen in the last render. A card that was already visible
+  // is moving between columns, so it glides across instead of fading in again.
+  const shown = useRef<Set<string> | null>(null);
+  const firstRender = shown.current === null;
 
   useEffect(() => { setSaveFailed(!save(state)); }, [state]);
+  useEffect(() => {
+    shown.current = new Set(COLUMNS.flatMap((column) => visibleTasks(state, column).map((task) => task.id)));
+  });
 
   const summary = useMemo(() => stats(state), [state]);
 
@@ -40,6 +49,7 @@ export default function App() {
 
   return (
     <div className="app">
+      <a className="site-crumb" href="https://umer-78.github.io/">← All projects</a>
       <header className="top">
         <div>
           <h1>Task Board</h1>
@@ -107,33 +117,58 @@ export default function App() {
 
       <div className="progress" aria-hidden="true"><i style={{ width: `${summary.percent}%` }} /></div>
 
-      <div className="board">
-        {COLUMNS.map((column) => {
-          const tasks = visibleTasks(state, column);
-          return (
-            <Column
-              key={column}
-              id={column}
-              count={tasks.length}
-              onDrop={(taskId) => setState((current) => moveTask(current, taskId, column))}
-            >
-              {tasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  dragging={dragging === task.id}
-                  onDragStart={() => setDragging(task.id)}
-                  onDragEnd={() => setDragging(null)}
-                  onChange={(patch) => setState((current) => updateTask(current, task.id, patch))}
-                  onDelete={() => setState((current) => deleteTask(current, task.id))}
-                  onNudge={(direction) => setState((current) => nudge(current, task.id, direction))}
-                />
-              ))}
-              {!tasks.length && <p className="empty">Nothing here.</p>}
-            </Column>
-          );
-        })}
-      </div>
+      <MotionConfig reducedMotion="user" transition={{ type: 'spring', stiffness: 520, damping: 42, mass: 0.9 }}>
+        <LayoutGroup>
+          <div className="board">
+            {COLUMNS.map((column) => {
+              const tasks = visibleTasks(state, column);
+              return (
+                <Column
+                  key={column}
+                  id={column}
+                  count={tasks.length}
+                  onDrop={(taskId) => setState((current) => moveTask(current, taskId, column))}
+                >
+                  <AnimatePresence mode="popLayout">
+                    {tasks.map((task, index) => (
+                      <motion.div
+                        key={task.id}
+                        layoutId={task.id}
+                        layout="position"
+                        className="card-shell"
+                        initial={shown.current?.has(task.id) ? false : { opacity: 0, y: 12, scale: 0.97 }}
+                        animate={{
+                          opacity: 1, y: 0, scale: 1,
+                          transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1], delay: firstRender ? 0.16 + index * 0.06 : 0 },
+                        }}
+                        exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.18 } }}
+                      >
+                        <TaskCard
+                          task={task}
+                          dragging={dragging === task.id}
+                          focusOnMount={focusId === task.id}
+                          onFocused={() => setFocusId(null)}
+                          onDragStart={() => setDragging(task.id)}
+                          onDragEnd={() => setDragging(null)}
+                          onChange={(patch) => setState((current) => updateTask(current, task.id, patch))}
+                          onDelete={() => setState((current) => deleteTask(current, task.id))}
+                          onNudge={(direction) => {
+                            setState((current) => nudge(current, task.id, direction));
+                            setFocusId(task.id);
+                          }}
+                        />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                  {!tasks.length && (
+                    <motion.p className="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>Nothing here.</motion.p>
+                  )}
+                </Column>
+              );
+            })}
+          </div>
+        </LayoutGroup>
+      </MotionConfig>
 
       <footer>
         Drag cards, or focus one and press <kbd>←</kbd> / <kbd>→</kbd> to move it,{' '}

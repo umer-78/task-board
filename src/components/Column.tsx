@@ -1,4 +1,5 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { motion } from 'motion/react';
 import { COLUMN_LABELS, type ColumnId } from '../lib/types';
 
 interface Props {
@@ -10,6 +11,9 @@ interface Props {
 
 export function Column({ id, count, onDrop, children }: Props) {
   const [over, setOver] = useState(false);
+  // The count pops when it changes, but not on the first paint.
+  const mounted = useRef(false);
+  useEffect(() => { mounted.current = true; }, []);
   return (
     <section
       className={`column${over ? ' over' : ''}`}
@@ -24,7 +28,12 @@ export function Column({ id, count, onDrop, children }: Props) {
         if (taskId) onDrop(taskId);
       }}
     >
-      <h2>{COLUMN_LABELS[id]} <span>{count}</span></h2>
+      <h2>
+        {COLUMN_LABELS[id]}{' '}
+        <motion.span key={count} initial={mounted.current ? { scale: 1.35 } : false} animate={{ scale: 1 }}>
+          {count}
+        </motion.span>
+      </h2>
       {children}
     </section>
   );
