@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { COLUMNS, type Task } from '../lib/types';
 
 interface Props {
@@ -9,9 +9,15 @@ interface Props {
   onDragStart: () => void;
   onDragEnd: () => void;
   dragging: boolean;
+  /** Focus this card when it mounts, e.g. after the arrow keys move it to another column. */
+  focusOnMount?: boolean;
+  onFocused?: () => void;
 }
 
-export function TaskCard({ task, onChange, onDelete, onNudge, onDragStart, onDragEnd, dragging }: Props) {
+export function TaskCard({
+  task, onChange, onDelete, onNudge, onDragStart, onDragEnd, dragging, focusOnMount = false, onFocused,
+}: Props) {
+  const ref = useRef<HTMLElement>(null);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [notes, setNotes] = useState(task.notes);
@@ -22,10 +28,17 @@ export function TaskCard({ task, onChange, onDelete, onNudge, onDragStart, onDra
     setEditing(false);
   };
 
+  useEffect(() => {
+    if (!focusOnMount) return;
+    ref.current?.focus();
+    onFocused?.();
+  }, [focusOnMount, onFocused]);
+
   const index = COLUMNS.indexOf(task.column);
 
   return (
     <article
+      ref={ref}
       className={`card${dragging ? ' dragging' : ''}${editing ? ' editing' : ''}`}
       draggable={!editing}
       tabIndex={0}

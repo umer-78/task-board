@@ -3,7 +3,7 @@
 [![CI](https://github.com/umer-78/task-board/actions/workflows/ci.yml/badge.svg)](https://github.com/umer-78/task-board/actions/workflows/ci.yml)
 ![React](https://img.shields.io/badge/React-18-61dafb)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)
-![Tests](https://img.shields.io/badge/tests-21-brightgreen)
+![Tests](https://img.shields.io/badge/tests-22-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 **Live:** https://umer-78.github.io/task-board/
@@ -21,6 +21,9 @@ mouse**, stores everything in your browser, and never asks you to sign in.
 - Filter by text or by tag as you type
 - Inline editing (`Enter` to edit, `Escape` to cancel, `Delete` to remove)
 - Priority per card, progress bar, "clear done"
+- Cards glide to their new column, fade in when added and out when deleted,
+  built with [Motion](https://motion.dev). Focus follows a card moved with the
+  arrow keys, and people who ask their system for reduced motion get a plain fade
 - **Export and import** as JSON, so your board is portable
 - Tells you plainly when the browser refuses to save (private mode, full quota)
   instead of losing work silently
@@ -43,7 +46,7 @@ src/lib/types.ts     the shape of a board
 src/lib/board.ts     every rule as a pure function: create, update, move, filter, stats
 src/lib/storage.ts   load/save/export/import, with every access guarded
 src/components/      Column and TaskCard
-src/App.tsx          state, handlers and layout
+src/App.tsx          state, handlers, layout and the card animations
 ```
 
 State lives in one object and every change goes through a **pure function**

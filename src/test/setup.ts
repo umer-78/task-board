@@ -1,4 +1,9 @@
 import '@testing-library/jest-dom/vitest';
+import { MotionGlobalConfig } from 'motion/react';
+
+// jsdom has no layout, so run Motion animations instantly: a card that leaves
+// is gone at once instead of waiting for its exit animation.
+MotionGlobalConfig.skipAnimations = true;
 
 // Node 26 + jsdom: window.localStorage can be undefined (ExperimentalWarning
 // about --localstorage-file). Provide an in-memory Storage so tests and the

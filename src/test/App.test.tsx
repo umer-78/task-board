@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
 import App from '../App';
@@ -30,7 +30,23 @@ describe('the board in a browser', () => {
     card.focus();
     await user.keyboard('{ArrowRight}');
     const doing = screen.getByRole('region', { name: 'Doing' });
-    expect(within(doing).getByRole('article', { name: /Read the README/ })).toBeInTheDocument();
+    const moved = within(doing).getByRole('article', { name: /Read the README/ });
+    expect(moved).toBeInTheDocument();
+    // Focus follows the card, so pressing → again keeps moving the same one.
+    expect(moved).toHaveFocus();
+    await user.keyboard('{ArrowRight}');
+    const done = screen.getByRole('region', { name: 'Done' });
+    expect(within(done).getByRole('article', { name: /Read the README/ })).toHaveFocus();
+  });
+
+  it('removes a deleted card from the board', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const card = screen.getByRole('article', { name: /Read the README/ });
+    card.focus();
+    await user.keyboard('{Delete}');
+    await waitFor(() => expect(screen.queryByText('Read the README')).not.toBeInTheDocument());
+    expect(screen.getByText(/1 of 2 done/)).toBeInTheDocument();
   });
 
   it('filters by tag', async () => {
