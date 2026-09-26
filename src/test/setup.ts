@@ -31,3 +31,19 @@ if (typeof globalThis.localStorage === 'undefined') {
     });
   }
 }
+
+// jsdom has no IntersectionObserver; Motion's useInView needs one. Report every
+// element as visible straight away, which is what a real browser does for an
+// element already on screen.
+if (!('IntersectionObserver' in globalThis)) {
+  class ImmediateIntersectionObserver {
+    constructor(private cb: IntersectionObserverCallback) {}
+    observe(target: Element) {
+      this.cb([{ isIntersecting: true, target, intersectionRatio: 1 } as IntersectionObserverEntry], this as unknown as IntersectionObserver);
+    }
+    unobserve() {}
+    disconnect() {}
+    takeRecords() { return []; }
+  }
+  (globalThis as unknown as { IntersectionObserver: unknown }).IntersectionObserver = ImmediateIntersectionObserver;
+}
