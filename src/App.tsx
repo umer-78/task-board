@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, LayoutGroup, MotionConfig, motion } from 'motion/react';
+import { BlurFade } from './components/ui/blur-fade';
+import { NumberTicker } from './components/ui/number-ticker';
+import { ShimmerButton } from './components/ui/shimmer-button';
 import { Column } from './components/Column';
 import { TaskCard } from './components/TaskCard';
 import {
@@ -50,10 +53,11 @@ export default function App() {
   return (
     <div className="app">
       <a className="site-crumb" href="https://umer-78.github.io/">← All projects</a>
+      <BlurFade>
       <header className="top">
         <div>
           <h1>Task Board</h1>
-          <p>{summary.done} of {summary.total} done · everything stays in this browser</p>
+          <p><NumberTicker value={summary.done} /> of <NumberTicker value={summary.total} /> done · everything stays in this browser</p>
         </div>
         <span className="spacer" />
         <button onClick={() => {
@@ -85,6 +89,7 @@ export default function App() {
         />
         <button onClick={() => setState(clearDone)} disabled={!summary.done}>Clear done</button>
       </header>
+      </BlurFade>
 
       {saveFailed && (
         <p role="status" style={{ color: 'var(--high)' }}>
@@ -93,6 +98,7 @@ export default function App() {
         </p>
       )}
 
+      <BlurFade delay={0.08}>
       <div className="toolbar">
         <div className="new">
           <label className="sr-only" htmlFor="new-task">New task</label>
@@ -103,7 +109,7 @@ export default function App() {
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={(event) => { if (event.key === 'Enter') add(); }}
           />
-          <button className="primary" onClick={add}>Add</button>
+          <ShimmerButton className="primary" onClick={add}>Add</ShimmerButton>
         </div>
         <label className="sr-only" htmlFor="filter">Filter tasks</label>
         <input
@@ -114,6 +120,7 @@ export default function App() {
           onChange={(event) => setState((current) => ({ ...current, filter: event.target.value }))}
         />
       </div>
+      </BlurFade>
 
       <div className="progress" aria-hidden="true"><i style={{ width: `${summary.percent}%` }} /></div>
 
