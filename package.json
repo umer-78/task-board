@@ -1,7 +1,7 @@
 {
   "name": "task-board",
   "version": "1.0.0",
-  "description": "A keyboard-friendly kanban board in React and TypeScript, with everything stored locally.",
+  "description": "Kanban board in React and TypeScript: keyboard moves as well as drag and drop, inline tags, filtering, JSON export and local storage.",
   "private": true,
   "type": "module",
   "scripts": {
