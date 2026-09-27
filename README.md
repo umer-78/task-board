@@ -28,6 +28,10 @@ mouse**, stores everything in your browser, and never asks you to sign in.
 - Tells you plainly when the browser refuses to save (private mode, full quota)
   instead of losing work silently
 - Light and dark theme, works on a phone
+- A 3D backdrop (three.js) that mirrors the board: the same three columns with
+  the same number of cards. Move a task and its card lifts out of one column and
+  lands in the other. It loads as its own chunk after the page has painted
+  (142 kB gzipped), holds still for reduced motion, and is simply absent without WebGL
 
 ## Keyboard
 
@@ -45,7 +49,8 @@ mouse**, stores everything in your browser, and never asks you to sign in.
 src/lib/types.ts     the shape of a board
 src/lib/board.ts     every rule as a pure function: create, update, move, filter, stats
 src/lib/storage.ts   load/save/export/import, with every access guarded
-src/components/      Column and TaskCard
+src/components/      Column, TaskCard, and Board3D (loads the 3D backdrop)
+src/lib/boardScene.ts  the 3D backdrop: columns and cards that follow the board's counts
 src/App.tsx          state, handlers, layout and the card animations
 ```
 

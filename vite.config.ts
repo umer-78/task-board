@@ -6,6 +6,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? '/task-board/' : '/',
   plugins: [react()],
+  // three.js (the 3D backdrop) is its own chunk, loaded after first paint; it is bigger than Vite's default warning size
+  build: { chunkSizeWarningLimit: 600 },
   test: {
     globals: true,
     environment: 'jsdom',
