@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, LayoutGroup, MotionConfig, motion } from 'motion/react';
+import { Board3D } from './components/Board3D';
 import { BlurFade } from './components/ui/blur-fade';
 import { NumberTicker } from './components/ui/number-ticker';
 import { ShimmerButton } from './components/ui/shimmer-button';
@@ -42,6 +43,11 @@ export default function App() {
   });
 
   const summary = useMemo(() => stats(state), [state]);
+  // cards per column, for the 3D backdrop that mirrors the board
+  const counts = useMemo(
+    () => COLUMNS.map((column) => state.tasks.filter((task) => task.column === column).length) as [number, number, number],
+    [state.tasks],
+  );
 
   const add = () => {
     const { title, tags } = parseTitle(draft);
@@ -52,6 +58,7 @@ export default function App() {
 
   return (
     <div className="app">
+      <Board3D counts={counts} />
       <a className="site-crumb" href="https://umer-78.github.io/">← All projects</a>
       <BlurFade>
       <header className="top">
