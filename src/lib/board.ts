@@ -4,6 +4,16 @@ import { COLUMNS, type BoardState, type ColumnId, type Priority, type Task } fro
 
 export const emptyBoard = (): BoardState => ({ tasks: [], filter: '', version: 1 });
 
+// crypto.randomUUID needs a secure page and a 2022+ browser; getRandomValues works everywhere.
+export function uuid(): string {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6]! & 0x0f) | 0x40;
+  b[8] = (b[8]! & 0x3f) | 0x80;
+  const h = [...b].map((x) => x.toString(16).padStart(2, '0')).join('');
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+}
+
 const nextOrder = (tasks: Task[], column: ColumnId): number =>
   tasks.filter((t) => t.column === column).reduce((max, t) => Math.max(max, t.order), -1) + 1;
 
@@ -11,7 +21,7 @@ export function createTask(
   state: BoardState,
   input: { title: string; notes?: string; column?: ColumnId; priority?: Priority; tags?: string[] },
   now: () => string = () => new Date().toISOString(),
-  id: () => string = () => crypto.randomUUID(),
+  id: () => string = uuid,
 ): BoardState {
   const title = input.title.trim();
   if (!title) return state;

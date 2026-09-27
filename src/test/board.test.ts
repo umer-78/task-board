@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  clearDone, createTask, deleteTask, emptyBoard, moveTask, nudge, parseTitle, stats, updateTask, visibleTasks,
+  clearDone, createTask, deleteTask, emptyBoard, moveTask, nudge, parseTitle, stats, updateTask, uuid, visibleTasks,
 } from '../lib/board';
 import { exportJson, importJson, load, save, STORAGE_KEY } from '../lib/storage';
 import type { BoardState } from '../lib/types';
@@ -147,5 +147,21 @@ describe('storage', () => {
     expect(restored.tasks[0]!.title).toBe('Portable');
     expect(() => importJson('{"tasks":[]}')).toThrow(/no tasks/);
     expect(() => importJson('nope')).toThrow();
+  });
+});
+
+describe('uuid', () => {
+  it('makes version 4 ids when crypto.randomUUID is missing (older browsers, plain http)', () => {
+    const own = Object.getOwnPropertyDescriptor(crypto, 'randomUUID');
+    Object.defineProperty(crypto, 'randomUUID', { value: undefined, configurable: true });
+    try {
+      const ids = new Set(Array.from({ length: 50 }, () => uuid()));
+      expect(ids.size).toBe(50);
+      for (const id of ids) expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    } finally {
+      if (own) Object.defineProperty(crypto, 'randomUUID', own);
+      else delete (crypto as { randomUUID?: unknown }).randomUUID;
+    }
+    expect(uuid()).toMatch(/^[0-9a-f-]{36}$/);
   });
 });
