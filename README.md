@@ -3,7 +3,7 @@
 [![CI](https://github.com/umer-78/task-board/actions/workflows/ci.yml/badge.svg)](https://github.com/umer-78/task-board/actions/workflows/ci.yml)
 ![React](https://img.shields.io/badge/React-18-61dafb)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)
-![Tests](https://img.shields.io/badge/tests-22-brightgreen)
+![Tests](https://img.shields.io/badge/tests-23-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 **Live:** https://umer-78.github.io/task-board/
@@ -75,15 +75,16 @@ cd task-board
 nvm use
 npm ci
 npm run dev        # http://localhost:5173
-npm test           # 21 tests (vitest + Testing Library)
+npm test           # 23 tests (vitest + Testing Library)
 npm run typecheck
 npm run build      # static site in dist/
 ```
 
 `npm test` covers the board rules (ordering, moving, completion dates, filtering
-by tag, stats) and the app in a jsdom browser: adding a task with an inline tag,
-moving one with the keyboard, filtering, inline editing and clearing the done
-column.
+by tag, stats), saving and loading (corrupted or foreign data, broken storage,
+export and import, ids on browsers without `crypto.randomUUID`) and the app in a
+jsdom browser: adding a task with an inline tag, moving one with the keyboard,
+deleting, filtering, inline editing and clearing the done column.
 
 ## Deployment
 
